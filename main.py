@@ -66,6 +66,11 @@ def webhook():
     if state != APPROVAL_STATE:
         return jsonify({"status": "not approval state"}), 200
 
+    # Prevent double-trigger: if Vinay is already the assignee, skip
+    current_assignee = issue.get("assignee", {}) or {}
+    if current_assignee.get("id") == VINAY_LINEAR_ID:
+        return jsonify({"status": "already assigned to Vinay, skipping"}), 200
+
     issue_id         = issue.get("id")
     issue_title      = issue.get("title", "Untitled")
     issue_identifier = issue.get("identifier", "")
